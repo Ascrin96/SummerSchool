@@ -11,7 +11,7 @@
 #include "gate.h"
 #include "imageworker.h"
 
-
+using namespace cv;
 
 
 int main(){
