@@ -69,7 +69,9 @@ GObject *DetectionGate::detect(const cv::Mat &img){
          if(calcLenght(lines_std[i]) < 20){
              continue;
          }
-        whiteLinesVector.push_back(lines_std[i]);
+         Vec4f tmpLine(lines_std[i]);
+         sortPointInLine(tmpLine);
+         whiteLinesVector.push_back(tmpLine);
     }
 
     for(int i = 0; i < whiteLinesVector.size(); i++){
