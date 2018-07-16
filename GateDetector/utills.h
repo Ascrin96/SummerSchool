@@ -17,4 +17,13 @@ float calcLenght(const Vec4f& line);
 bool compare2Lines(const Vec4f line1,const Vec4f line2);
 
 bool compare2LinesOnDifference(const Vec4f line1,const Vec4f line2);
+
+Vec4f join2LinesAVG(const Vec4f line1, const Vec4f line2);
+
+Vec4f join2Lines(const Vec4f line1, const Vec4f line2);
+
+bool compareLinesOnJoinVertical(const Vec4f& line1, const Vec4f& line2);
+
+void sortPointInLine(Vec4f& line1);
+
 #endif // UTILLS_H
