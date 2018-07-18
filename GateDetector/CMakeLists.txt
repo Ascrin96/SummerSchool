@@ -9,6 +9,8 @@ set(NAME_SRC
     gate.cpp 
     detectiongate.cpp
     imageworker.cpp
+    detectionmarkup.cpp
+    markup.cpp
 )
 
 set(NAME_HEADRES
@@ -19,6 +21,8 @@ set(NAME_HEADRES
     detectiongate.h 
     context.h 
     imageworker.h
+    detectionmarkup.h 
+    markup.h
 )
 
 find_package(Threads)

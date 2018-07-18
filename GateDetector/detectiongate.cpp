@@ -10,8 +10,6 @@ GObject *DetectionGate::detect(const cv::Mat &img){
     img.copyTo(imgOrigin);
     std::vector<Vec4f> lines_std;
 
-
-
     Mat edge;
     imgOrigin.copyTo(edge);
     cvtColor(edge, edge, COLOR_BGR2GRAY );
@@ -37,7 +35,6 @@ GObject *DetectionGate::detect(const cv::Mat &img){
     bitwise_and(imgOrigin, imgOrigin, merge, vertical);
     cvtColor(merge, merge, COLOR_BGR2GRAY );
     cv::threshold(merge, merge, 200, 255, THRESH_TOZERO);
-    imshow("Thresh", merge);
     ls->detect(merge, lines_std); // Detect the lines
 
     std::sort(lines_std.begin(), lines_std.end(), compare2Lines);
@@ -57,6 +54,7 @@ GObject *DetectionGate::detect(const cv::Mat &img){
 
 
     std::vector<Vec4f>  whiteLinesVector, gateVector;
+    std::vector<std::array <Vec4f, 2> > gates;
 
 //    for(auto elem: lines_std){
 //        std::cout<< elem[0] << "\t" <<  elem[1] << "\t" <<  elem[2] << "\t" << elem[3] << "\t" << "lenght: " <<calcLenght(elem) << "\n" ;
@@ -79,7 +77,7 @@ GObject *DetectionGate::detect(const cv::Mat &img){
             if(i == j){
                 continue;
             }
-            if(((abs(whiteLinesVector[i][0] - whiteLinesVector[j][0]) < 160)
+            if(((abs(whiteLinesVector[i][0] - whiteLinesVector[j][0]) < 180)
                     && (abs(whiteLinesVector[i][0] - whiteLinesVector[j][0]) > 140))
                     || ((abs(whiteLinesVector[i][0] - whiteLinesVector[j][0]) < 640)
                         && (abs(whiteLinesVector[i][0] - whiteLinesVector[j][0]) > 600))){
@@ -93,16 +91,50 @@ GObject *DetectionGate::detect(const cv::Mat &img){
                 line2[1] = whiteLinesVector[i][3];
                 line2[2] = whiteLinesVector[j][2];
                 line2[3] = whiteLinesVector[j][3];
-                gateVector.push_back(whiteLinesVector[i]);
-                gateVector.push_back(whiteLinesVector[j]);
-                gateVector.push_back(line1);
-                gateVector.push_back(line2);
+
+                std::array <Vec4f, 2> ptrOfGate = {line1,line2};
+
+                gates.push_back(ptrOfGate);
             }
         }
     }
 
-//     std::cout << "Size of gateVector " << gateVector.size() << "\n";
-    Gate* gate = new Gate(gateVector);
+    for(int i = 0; i < gates.size(); i++){
+        Vec4f line1, line2, diag1, diag2;
+        line1[0] = gates[i][0][0];
+        line1[1] = gates[i][0][1];
+        line1[2] = gates[i][1][0];
+        line1[3] = gates[i][1][1];
+
+        line2[0] = gates[i][0][2];
+        line2[1] = gates[i][0][3];
+        line2[2] = gates[i][1][2];
+        line2[3] = gates[i][1][3];
+
+        diag1[0] = gates[i][0][0];
+        diag1[1] = gates[i][0][1];
+        diag1[2] = gates[i][1][2];
+        diag1[3] = gates[i][1][3];
+
+        diag2[0] = gates[i][1][0];
+        diag2[1] = gates[i][1][1];
+        diag2[2] = gates[i][0][2];
+        diag2[3] = gates[i][0][3];
+
+        float p = (calcLenght(gates[i][0]) + calcLenght(gates[i][1]) + calcLenght(line1) + calcLenght(line2));
+        float s = (calcLenght(diag1)*calcLenght(diag2)*abs(sin(angleBetween2Lines(diag1,diag2))))/2;
+
+        float indexSP = s/p;
+
+        if((indexSP > 22) && (indexSP< 36)){
+            gateVector.push_back(gates[i][0]);
+            gateVector.push_back(line1);
+            gateVector.push_back(gates[i][1]);
+            gateVector.push_back(line2);
+        }
+    }
+
+    GObject* gate = new Gate(gateVector);
 
     return gate;
 

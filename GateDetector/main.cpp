@@ -9,6 +9,8 @@
 
 #include "detectiongate.h"
 #include "gate.h"
+#include "markup.h"
+#include "detectionmarkup.h"
 #include "imageworker.h"
 
 using namespace cv;
@@ -17,17 +19,33 @@ using namespace cv;
 int main(){
     VideoCapture cap("/home/misha/development/SummerSchool/Russia-Spain.mp4");
 
-    ImageWorker imgWorker;
+    ImageWorker imgWorkerGate;
+    ImageWorker imgWorkerMarkup;
+
+    DetectionMarkup detectionMarkup;
+    imgWorkerMarkup.setDetection(&detectionMarkup);
+
     DetectionGate detectionGate;
-    imgWorker.setDetection(&detectionGate);
+    imgWorkerGate.setDetection(&detectionGate);
 
     while(1){
         Mat img;
         cap >> img;
+        Mat imgGate, imgMarkup;
+
         cv::resize(img, img, cv::Size(800,600));
-        imgWorker.useDetection(img);
-        imgWorker.useDraw(img);
-        cv::imshow("Image", img);
+        img.copyTo(imgGate);
+        img.copyTo(imgMarkup);
+
+        imgWorkerGate.useDetection(imgGate);
+        imgWorkerGate.useDraw(imgGate);
+
+        imgWorkerMarkup.useDetection(imgMarkup);
+        imgWorkerMarkup.useDraw(imgMarkup);
+
+
+        cv::imshow("Gate", imgGate);
+        cv::imshow("Markup", imgMarkup);
 
 
         if(waitKey(30) == 27) {
